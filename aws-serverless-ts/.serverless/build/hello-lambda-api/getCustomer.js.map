@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../hello-lambda-api/getCustomer.ts"],
+  "sourcesContent": ["import {DynamoDBClient,ScanCommand} from \"@aws-sdk/client-dynamodb\";\nimport {unmarshall} from \"@aws-sdk/util-dynamodb\";\nconst client=new DynamoDBClient({});\nexport async function getCustomer(){\n    try {\n        const db=await client.send(\n            new ScanCommand({\n                TableName: \"customer_table\"\n            })\n        )\n        const items= db.Items?.map((item)=> unmarshall(item) );\n        return {\n            statusCode:200,\n            body:JSON.stringify({\n                customers:items\n            })\n        }\n    } catch (error) {\n        console.log(\"Error\",error);\n        return{\n            statusCode:500,\n              body:JSON.stringify({\n                message:\"Failed to retrieve customers\",\n            })\n        }\n    }\n}"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,6BAAyC;AACzC,2BAAyB;AACzB,IAAM,SAAO,IAAI,sCAAe,CAAC,CAAC;AAClC,eAAsB,cAAa;AAC/B,MAAI;AACA,UAAM,KAAG,MAAM,OAAO;AAAA,MAClB,IAAI,mCAAY;AAAA,QACZ,WAAW;AAAA,MACf,CAAC;AAAA,IACL;AACA,UAAM,QAAO,GAAG,OAAO,IAAI,CAAC,aAAQ,iCAAW,IAAI,CAAE;AACrD,WAAO;AAAA,MACH,YAAW;AAAA,MACX,MAAK,KAAK,UAAU;AAAA,QAChB,WAAU;AAAA,MACd,CAAC;AAAA,IACL;AAAA,EACJ,SAAS,OAAO;AACZ,YAAQ,IAAI,SAAQ,KAAK;AACzB,WAAM;AAAA,MACF,YAAW;AAAA,MACT,MAAK,KAAK,UAAU;AAAA,QAClB,SAAQ;AAAA,MACZ,CAAC;AAAA,IACL;AAAA,EACJ;AACJ;",
+  "names": []
+}

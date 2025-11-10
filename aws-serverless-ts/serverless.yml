@@ -1,0 +1,74 @@
+org: jagan2002
+app: awsapp2002
+service: hello-lambda-api
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Scan
+            - dynamodb:PutItem
+          Resource: "*"
+  environment:
+    USER_POOL_ID: us-east-1_x2jZAgWic
+    USER_CLIENT_ID: 3t1cipggjjbcapot79o3duomsm
+    MONGO_URI: "mongodb+srv://jaganpatra_db_user:Patra123@cluster0.twvcjqe.mongodb.net/?appName=Cluster0"
+  httpApi:
+    authorizers:
+      CognitoAuthorizer:
+        type: jwt
+        identitySource: "$request.header.Authorization"
+        issuerUrl: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_x2jZAgWic
+        audience:
+          - 3t1cipggjjbcapot79o3duomsm
+
+resources:
+  Resources:
+    CustomerTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: primary_key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: primary_key
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: customer_table
+
+functions:
+  getCustomer:
+    handler: hello-lambda-api/getCustomer.getCustomer
+    events:
+      - httpApi:
+          path: /
+          method: get
+          authorizer:
+            name: CognitoAuthorizer
+
+  createCustomer:
+    handler: hello-lambda-api/createCustomer.createCustomer
+    events:
+      - httpApi:
+          path: /customer
+          method: post
+          authorizer:
+            name: CognitoAuthorizer
+  
+  signup:
+    handler: hello-lambda-api/auth/signup.signup
+    events:
+      - httpApi:
+          path: /signup
+          method: post
+  
+  login:
+    handler: hello-lambda-api/auth/login.login
+    events:
+      - httpApi:
+          path: /login
+          method: post

@@ -1,0 +1,724 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template for this Serverless application",
+  "Resources": {
+    "GetCustomerLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/hello-lambda-api-dev-getCustomer"
+      }
+    },
+    "CreateCustomerLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/hello-lambda-api-dev-createCustomer"
+      }
+    },
+    "SignupLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/hello-lambda-api-dev-signup"
+      }
+    },
+    "LoginLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/hello-lambda-api-dev-login"
+      }
+    },
+    "IamRoleLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "hello-lambda-api",
+                  "dev",
+                  "lambda"
+                ]
+              ]
+            },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:CreateLogGroup",
+                    "logs:TagResource"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/hello-lambda-api-dev*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/hello-lambda-api-dev*:*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:Scan",
+                    "dynamodb:PutItem"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ],
+        "Path": "/",
+        "RoleName": {
+          "Fn::Join": [
+            "-",
+            [
+              "hello-lambda-api",
+              "dev",
+              {
+                "Ref": "AWS::Region"
+              },
+              "lambdaRole"
+            ]
+          ]
+        }
+      }
+    },
+    "GetCustomerLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-us-east-1-7f3d8cce-5d97",
+          "S3Key": "serverless/hello-lambda-api/dev/1762777855605-2025-11-10T12:30:55.605Z/hello-lambda-api.zip"
+        },
+        "Handler": "hello-lambda-api/getCustomer.getCustomer",
+        "Runtime": "nodejs20.x",
+        "FunctionName": "hello-lambda-api-dev-getCustomer",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "USER_POOL_ID": "us-east-1_x2jZAgWic",
+            "USER_CLIENT_ID": "3t1cipggjjbcapot79o3duomsm",
+            "MONGO_URI": "mongodb+srv://jaganpatra_db_user:Patra123@cluster0.twvcjqe.mongodb.net/?appName=Cluster0",
+            "NODE_OPTIONS": "--enable-source-maps"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "GetCustomerLogGroup"
+      ]
+    },
+    "CreateCustomerLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-us-east-1-7f3d8cce-5d97",
+          "S3Key": "serverless/hello-lambda-api/dev/1762777855605-2025-11-10T12:30:55.605Z/hello-lambda-api.zip"
+        },
+        "Handler": "hello-lambda-api/createCustomer.createCustomer",
+        "Runtime": "nodejs20.x",
+        "FunctionName": "hello-lambda-api-dev-createCustomer",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "USER_POOL_ID": "us-east-1_x2jZAgWic",
+            "USER_CLIENT_ID": "3t1cipggjjbcapot79o3duomsm",
+            "MONGO_URI": "mongodb+srv://jaganpatra_db_user:Patra123@cluster0.twvcjqe.mongodb.net/?appName=Cluster0",
+            "NODE_OPTIONS": "--enable-source-maps"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "CreateCustomerLogGroup"
+      ]
+    },
+    "SignupLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-us-east-1-7f3d8cce-5d97",
+          "S3Key": "serverless/hello-lambda-api/dev/1762777855605-2025-11-10T12:30:55.605Z/hello-lambda-api.zip"
+        },
+        "Handler": "hello-lambda-api/auth/signup.signup",
+        "Runtime": "nodejs20.x",
+        "FunctionName": "hello-lambda-api-dev-signup",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "USER_POOL_ID": "us-east-1_x2jZAgWic",
+            "USER_CLIENT_ID": "3t1cipggjjbcapot79o3duomsm",
+            "MONGO_URI": "mongodb+srv://jaganpatra_db_user:Patra123@cluster0.twvcjqe.mongodb.net/?appName=Cluster0",
+            "NODE_OPTIONS": "--enable-source-maps"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "SignupLogGroup"
+      ]
+    },
+    "LoginLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-us-east-1-7f3d8cce-5d97",
+          "S3Key": "serverless/hello-lambda-api/dev/1762777855605-2025-11-10T12:30:55.605Z/hello-lambda-api.zip"
+        },
+        "Handler": "hello-lambda-api/auth/login.login",
+        "Runtime": "nodejs20.x",
+        "FunctionName": "hello-lambda-api-dev-login",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "USER_POOL_ID": "us-east-1_x2jZAgWic",
+            "USER_CLIENT_ID": "3t1cipggjjbcapot79o3duomsm",
+            "MONGO_URI": "mongodb+srv://jaganpatra_db_user:Patra123@cluster0.twvcjqe.mongodb.net/?appName=Cluster0",
+            "NODE_OPTIONS": "--enable-source-maps"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "LoginLogGroup"
+      ]
+    },
+    "GetCustomerLambdaVersionysqK93rtDh1JUcB3m2UWAJZ4Oq4t4EbiQJUwgAeMGQc": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetCustomerLambdaFunction"
+        },
+        "CodeSha256": "yhcBM7ug8PHqVqSSXwxZ0nNji4umVs+OjWOrRF7RPeU="
+      }
+    },
+    "CreateCustomerLambdaVersion3iOdwtDTEkV1vudcXmEiBwlcuBJPa8vEPNunbczwlU": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "CreateCustomerLambdaFunction"
+        },
+        "CodeSha256": "yhcBM7ug8PHqVqSSXwxZ0nNji4umVs+OjWOrRF7RPeU="
+      }
+    },
+    "SignupLambdaVersionMgBfZxfczrBHSxb7dwI76mPk1Ag61vjPPgAKrCCBo": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "SignupLambdaFunction"
+        },
+        "CodeSha256": "yhcBM7ug8PHqVqSSXwxZ0nNji4umVs+OjWOrRF7RPeU="
+      }
+    },
+    "LoginLambdaVersion2KLsFllJccqyKyOTjAa630sovQAl97O5MPLKc4": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "LoginLambdaFunction"
+        },
+        "CodeSha256": "yhcBM7ug8PHqVqSSXwxZ0nNji4umVs+OjWOrRF7RPeU="
+      }
+    },
+    "HttpApi": {
+      "Type": "AWS::ApiGatewayV2::Api",
+      "Properties": {
+        "Name": "dev-hello-lambda-api",
+        "ProtocolType": "HTTP"
+      }
+    },
+    "HttpApiStage": {
+      "Type": "AWS::ApiGatewayV2::Stage",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "StageName": "$default",
+        "AutoDeploy": true,
+        "DefaultRouteSettings": {
+          "DetailedMetricsEnabled": false
+        }
+      }
+    },
+    "HttpApiAuthorizerCognitoAuthorizer": {
+      "Type": "AWS::ApiGatewayV2::Authorizer",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "Name": "CognitoAuthorizer",
+        "IdentitySource": [
+          "$request.header.Authorization"
+        ],
+        "AuthorizerType": "JWT",
+        "JwtConfiguration": {
+          "Audience": [
+            "3t1cipggjjbcapot79o3duomsm"
+          ],
+          "Issuer": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_x2jZAgWic"
+        }
+      }
+    },
+    "GetCustomerLambdaPermissionHttpApi": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GetCustomerLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "HttpApi"
+              },
+              "/*"
+            ]
+          ]
+        }
+      }
+    },
+    "HttpApiIntegrationGetCustomer": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::GetAtt": [
+            "GetCustomerLambdaFunction",
+            "Arn"
+          ]
+        },
+        "PayloadFormatVersion": "2.0",
+        "TimeoutInMillis": 30000
+      }
+    },
+    "HttpApiRouteGet": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "RouteKey": "GET /",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "HttpApiIntegrationGetCustomer"
+              }
+            ]
+          ]
+        },
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "HttpApiAuthorizerCognitoAuthorizer"
+        }
+      },
+      "DependsOn": "HttpApiIntegrationGetCustomer"
+    },
+    "CreateCustomerLambdaPermissionHttpApi": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "CreateCustomerLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "HttpApi"
+              },
+              "/*"
+            ]
+          ]
+        }
+      }
+    },
+    "HttpApiIntegrationCreateCustomer": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::GetAtt": [
+            "CreateCustomerLambdaFunction",
+            "Arn"
+          ]
+        },
+        "PayloadFormatVersion": "2.0",
+        "TimeoutInMillis": 30000
+      }
+    },
+    "HttpApiRoutePostCustomer": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "RouteKey": "POST /customer",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "HttpApiIntegrationCreateCustomer"
+              }
+            ]
+          ]
+        },
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "HttpApiAuthorizerCognitoAuthorizer"
+        }
+      },
+      "DependsOn": "HttpApiIntegrationCreateCustomer"
+    },
+    "SignupLambdaPermissionHttpApi": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "SignupLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "HttpApi"
+              },
+              "/*"
+            ]
+          ]
+        }
+      }
+    },
+    "HttpApiIntegrationSignup": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::GetAtt": [
+            "SignupLambdaFunction",
+            "Arn"
+          ]
+        },
+        "PayloadFormatVersion": "2.0",
+        "TimeoutInMillis": 30000
+      }
+    },
+    "HttpApiRoutePostSignup": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "RouteKey": "POST /signup",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "HttpApiIntegrationSignup"
+              }
+            ]
+          ]
+        }
+      },
+      "DependsOn": "HttpApiIntegrationSignup"
+    },
+    "LoginLambdaPermissionHttpApi": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LoginLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "HttpApi"
+              },
+              "/*"
+            ]
+          ]
+        }
+      }
+    },
+    "HttpApiIntegrationLogin": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::GetAtt": [
+            "LoginLambdaFunction",
+            "Arn"
+          ]
+        },
+        "PayloadFormatVersion": "2.0",
+        "TimeoutInMillis": 30000
+      }
+    },
+    "HttpApiRoutePostLogin": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApi"
+        },
+        "RouteKey": "POST /login",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "HttpApiIntegrationLogin"
+              }
+            ]
+          ]
+        }
+      },
+      "DependsOn": "HttpApiIntegrationLogin"
+    },
+    "CustomerTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "primary_key",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "primary_key",
+            "KeyType": "HASH"
+          }
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "TableName": "customer_table"
+      }
+    }
+  },
+  "Outputs": {
+    "ServerlessDeploymentBucketName": {
+      "Value": "serverless-framework-deployments-us-east-1-7f3d8cce-5d97",
+      "Export": {
+        "Name": "sls-hello-lambda-api-dev-ServerlessDeploymentBucketName"
+      }
+    },
+    "GetCustomerLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "GetCustomerLambdaVersionysqK93rtDh1JUcB3m2UWAJZ4Oq4t4EbiQJUwgAeMGQc"
+      },
+      "Export": {
+        "Name": "sls-hello-lambda-api-dev-GetCustomerLambdaFunctionQualifiedArn"
+      }
+    },
+    "CreateCustomerLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "CreateCustomerLambdaVersion3iOdwtDTEkV1vudcXmEiBwlcuBJPa8vEPNunbczwlU"
+      },
+      "Export": {
+        "Name": "sls-hello-lambda-api-dev-CreateCustomerLambdaFunctionQualifiedArn"
+      }
+    },
+    "SignupLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "SignupLambdaVersionMgBfZxfczrBHSxb7dwI76mPk1Ag61vjPPgAKrCCBo"
+      },
+      "Export": {
+        "Name": "sls-hello-lambda-api-dev-SignupLambdaFunctionQualifiedArn"
+      }
+    },
+    "LoginLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "LoginLambdaVersion2KLsFllJccqyKyOTjAa630sovQAl97O5MPLKc4"
+      },
+      "Export": {
+        "Name": "sls-hello-lambda-api-dev-LoginLambdaFunctionQualifiedArn"
+      }
+    },
+    "HttpApiId": {
+      "Description": "Id of the HTTP API",
+      "Value": {
+        "Ref": "HttpApi"
+      },
+      "Export": {
+        "Name": "sls-hello-lambda-api-dev-HttpApiId"
+      }
+    },
+    "HttpApiUrl": {
+      "Description": "URL of the HTTP API",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "HttpApi"
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region"
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix"
+            }
+          ]
+        ]
+      },
+      "Export": {
+        "Name": "sls-hello-lambda-api-dev-HttpApiUrl"
+      }
+    }
+  }
+}
